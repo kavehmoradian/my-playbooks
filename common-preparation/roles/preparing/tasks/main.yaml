@@ -1,0 +1,41 @@
+---
+- name: Install package
+  import_tasks: packages.yaml
+  tags: install_packages
+
+- name: Set resource limits for users and processes
+  import_tasks: limits.yaml
+  tags: tuning
+
+- name: Configure sshd, iptabels and ...
+  import_tasks: hardening.yaml
+  tags: hardening, firewall
+
+- name: Host file configure
+  import_tasks: hosts.yaml
+  tags: hardening
+
+- name: Audit log configure
+  import_tasks: auditd.yaml
+  tags: hardening
+
+- name: Fstab config
+  import_tasks: fstab.yaml
+  tags: hardening
+
+- name: Change resolved.conf
+  import_tasks: resolvedconf.yaml
+  tags: hardening
+
+- name: Change journal.conf
+  import_tasks: journalconf.yaml
+  tags: hardening
+
+- name: Change sysctl.conf
+  import_tasks: tuning.yaml
+  tags: tuning
+
+- name: Download and config lynis scripts
+  import_tasks: lynis.yaml
+  tags: audit
+...

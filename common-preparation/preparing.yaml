@@ -1,0 +1,7 @@
+---
+- hosts: servers
+  become: true
+  gather_facts: true
+  name: install and configure server
+  roles:
+    - { role: preparing, become: True, tags: preparing }

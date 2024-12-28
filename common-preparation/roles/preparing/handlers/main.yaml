@@ -1,0 +1,33 @@
+---
+- name: Restart ntp
+  systemd:
+    name: ntp
+    state: restarted
+
+- name: Restart ssh
+  systemd:
+    name: ssh
+    state: restarted
+
+- name: Restart iptables
+  systemd:
+    name: iptables
+    state: restarted
+
+- name: Restart fail2ban
+  systemd:
+    name: fail2ban
+    state: restarted
+
+- name: Restart auditd
+  systemd:
+    name: auditd
+    state: restarted
+
+- name: Generate auditd
+  ansible.builtin.command: augenrules
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: 'yes'
+...
