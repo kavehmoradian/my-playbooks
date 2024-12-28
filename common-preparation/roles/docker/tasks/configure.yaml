@@ -1,0 +1,17 @@
+---
+- name: Create internal_net network
+  community.docker.docker_network:
+    name: internal_net
+    driver: bridge
+    state: present
+    driver_options:
+      com.docker.network.bridge.name: internal_net
+
+- name: Create external_net network
+  community.docker.docker_network:
+    name: external_net
+    driver: bridge
+    state: present
+    driver_options:
+      com.docker.network.bridge.name: external_net
+...

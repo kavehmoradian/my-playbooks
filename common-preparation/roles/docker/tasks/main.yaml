@@ -1,0 +1,9 @@
+---
+- name: Install Docker
+  import_tasks: install.yaml
+  tags: install_docker
+
+- name: Config Docker
+  import_tasks: configure.yaml
+  tags: configure_docker
+...

@@ -12,7 +12,7 @@
   tags: hardening, firewall
 
 - name: Host file configure
-  import_tasks: hosts.yaml
+  import_tasks: host.yaml
   tags: hardening
 
 - name: Audit log configure
