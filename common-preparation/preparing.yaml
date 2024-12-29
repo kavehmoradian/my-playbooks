@@ -6,3 +6,4 @@
   roles:
     - { role: preparing, become: True, tags: preparing }
     - { role: docker, become: True, tags: docker_setup }
+...

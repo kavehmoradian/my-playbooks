@@ -30,6 +30,7 @@ packages:
 - cracklib-runtime
 - btop
 - micro
+- python3-pip
 
 # Limit.conf variables
 limit_nproc_hard: 1024
