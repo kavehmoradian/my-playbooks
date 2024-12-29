@@ -1,0 +1,65 @@
+networks:
+  external_net:
+    name: external_net
+    external: true
+
+volumes:
+  traefik-acme:
+    name: traefik-acme
+
+services:
+  traefik:
+    image: "{{TRAEFIK_IMAGE }}:{{TRAEFIK_VERSION}}"
+    restart: always
+    container_name: traefik
+    command:
+      - "--log.level=ERROR"
+      - "--log.filepath=/log-file.log"
+      - "--log.format=json"
+      - "--api=true"
+      - "--api.insecure=true"
+      - "--ping=true"
+      - "--accesslog=true"
+      - "--accesslog.fields.names.StartUTC=drop"
+      - "--accesslog.bufferingsize=250"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=external_net"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      - "--certificatesresolvers.mycert.acme.email={{ TRAEFIK_ACME_EMAIL }}"
+      - "--certificatesresolvers.mycert.acme.storage=/acme/acme.json"
+      - "--certificatesresolvers.mycert.acme.tlschallenge=true"
+      - "--providers.file.filename=/traefik/config.yml"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-acme:/acme
+      - ./traefik:/traefik
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://localhost:8080/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=external_net"
+      - "traefik.http.middlewares.web-auth.basicauth.users={{basic_auth_token}}"
+      - "traefik.http.routers.traefik.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`{{ TRAEFIK_SUB_DOMAIN }}.{{ DOMAIN_NAME }}`)"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`{{ TRAEFIK_SUB_DOMAIN }}.{{ DOMAIN_NAME }}`)"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.options=default"
+      - "traefik.http.routers.traefik-secure.middlewares=web-auth,security@file,hsts@file"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=mycert"
+      - "traefik.http.routers.traefik-secure.service=traefik"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+    networks:
+      - external_net

@@ -1,0 +1,52 @@
+---
+- name: Install apache2-utils (for htpasswd)
+  apt:
+    name: apache2-utils
+    state: present
+
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/traefik"
+    - "{{ DIR_NAME }}/traefik/traefik"
+    - "{{ DIR_NAME }}/traefik/certs"
+
+- name: Copy trafik config file.
+  template:
+    src: traefik.yaml.j2
+    dest: "{{ DIR_NAME }}/traefik/traefik/config.yml"
+
+- name: Generate basic auth token
+  command: "htpasswd -nbs {{ TRAEFIK_USERNAME }} {{ TRAEFIK_PASSWORD }} "
+  register: basic_auth_output
+
+- name: Set basic auth token fact
+  set_fact:
+    basic_auth_token: "{{ basic_auth_output.stdout }}"
+
+- name: Copy Docker Compose file
+  template:
+    src: traefik-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/traefik/docker-compose.yaml"
+
+- name: Traefik image pull
+  docker_image:
+    name: "{{ TRAEFIK_IMAGE }}:{{ TRAEFIK_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/traefik"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/traefik"
+    build: false
+    files:
+      - docker-compose.yaml
+...

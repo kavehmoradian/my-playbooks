@@ -1,0 +1,5 @@
+---
+- name: Setup traefik
+  import_tasks: traefik.yaml
+  tags: setup_traefik
+...
