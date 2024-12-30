@@ -4,11 +4,11 @@ DIR_NAME: /deploy
 TRAEFIK_IMAGE: traefik
 TRAEFIK_VERSION: v3.2.3
 
-DOMAIN_NAME: iqliniq.com
-TRAEFIK_SUB_DOMAIN: traefik-stg-01
+DOMAIN_NAME: domain.tld
+TRAEFIK_SUB_DOMAIN: sub
 
-TRAEFIK_USERNAME: 1Ft7RE7A
-TRAEFIK_PASSWORD: H4aZXk8CUtt0
+TRAEFIK_USERNAME: xxxxxxxx
+TRAEFIK_PASSWORD: xxxxxxxxxxxx
 
-TRAEFIK_ACME_EMAIL: kave.moradian@gmail.com
+TRAEFIK_ACME_EMAIL: mail@gmail.com
 ...
