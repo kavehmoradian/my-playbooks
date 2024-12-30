@@ -1,0 +1,45 @@
+networks:
+  external_net:
+    name: external_net
+    external: true
+
+volumes:
+  vault_data:
+    name: vault_data
+
+services:
+  vault:
+    image: "{{VAULT_IMAGE }}:{{VAULT_VERSION}}"
+    restart: always
+    container_name: vault
+    entrypoint: ["/bin/sh", "-c", "chown root /vault/data && vault server -config=/vault/config/vaultconfig.hcl"]
+    volumes:
+      - vault_data:/vault/data 
+      - ./config/vaultconfig.hcl:/vault/config/vaultconfig.hcl:ro
+    cap_add:
+      - IPC_LOCK 
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://127.0.0.1:8200/v1/sys/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s 
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=external_net"
+      - "traefik.http.routers.vault.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.vault.entrypoints=http"
+      - "traefik.http.routers.vault.rule=Host(`{{ VAULT_SUB_DOMAIN }}.{{ DOMAIN_NAME }}`)"
+      - "traefik.http.routers.vault-secure.entrypoints=https"
+      - "traefik.http.routers.vault-secure.rule=Host(`{{ VAULT_SUB_DOMAIN }}.{{ DOMAIN_NAME }}`)"
+      - "traefik.http.routers.vault-secure.tls=true"
+      - "traefik.http.routers.vault-secure.tls.options=default"
+      - "traefik.http.routers.vault-secure.tls.certresolver=mycert"
+      - "traefik.http.routers.vault-secure.service=vault"
+      - "traefik.http.services.vault.loadbalancer.server.port=8200"
+
+    networks:
+      - external_net

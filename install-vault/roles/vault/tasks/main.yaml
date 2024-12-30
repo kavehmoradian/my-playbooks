@@ -1,0 +1,14 @@
+---
+- name: install vault
+  import_tasks: install.yaml
+  tags: install
+
+- name: Initialize vault
+  import_tasks: initialize.yaml
+  tags: initialize
+  when: INITIALIZED_BEFORE == false
+
+- name: Unseal vault
+  import_tasks: unseal.yaml
+  tags: unseal
+...

@@ -1,0 +1,42 @@
+---
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/vault"
+    - "{{ DIR_NAME }}/vault/config"
+
+- name: Copy vault config file.
+  template:
+    src: vaultconfig.hcl.j2
+    dest: "{{ DIR_NAME }}/vault/config/vaultconfig.hcl"
+
+- name: Copy Docker Compose file
+  template:
+    src: vault-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/vault/docker-compose.yaml"
+
+- name: Vault image pull
+  docker_image:
+    name: "{{ VAULT_IMAGE }}:{{ VAULT_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/vault"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/vault"
+    build: false
+    files:
+      - docker-compose.yaml
+
+- name: Make sure vault has time to start
+  pause:
+    seconds: 5
+...

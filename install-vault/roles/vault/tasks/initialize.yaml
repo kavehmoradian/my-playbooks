@@ -1,0 +1,24 @@
+---
+- name: Initialize Vault
+  community.docker.docker_container_exec:
+    container: vault
+    command: "vault operator init -format=json"
+  register: vault_init_result
+  changed_when: vault_init_result.stdout.find('Unseal Key') != -1
+
+- name: Parse unseal keys
+  set_fact:
+    UNSEAL_KEYS: "{{ vault_init_result.stdout | from_json | json_query('unseal_keys_hex') }}"
+
+- name: Parse root token
+  set_fact:
+    ROOT_TOKEN: "{{ vault_init_result.stdout | from_json | json_query('root_token') }}"
+
+- name: print unseal keys
+  debug:
+    var: UNSEAL_KEYS
+
+- name: print root token
+  debug:
+    var: ROOT_TOKEN
+...

@@ -1,0 +1,17 @@
+---
+- name: Unseal Vault - Part 1
+  community.docker.docker_container_exec:
+    container: vault
+    command: "vault operator unseal {{ UNSEAL_KEYS[0] }}"
+
+- name: Unseal Vault - Part 2
+  community.docker.docker_container_exec:
+    container: vault
+    command: "vault operator unseal {{ UNSEAL_KEYS[1] }}"
+
+- name: Unseal Vault - Part 3
+  community.docker.docker_container_exec:
+    container: vault
+    command: "vault operator unseal {{ UNSEAL_KEYS[2] }}"
+
+...

@@ -1,0 +1,8 @@
+---
+- hosts: servers
+  become: true
+  gather_facts: true
+  name: install and configure vault
+  roles:
+    - { role: vault, become: True, tags: vault }
+...
