@@ -1,0 +1,33 @@
+---
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/portainer"
+
+
+- name: Copy Docker Compose file
+  template:
+    src: portainer-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/portainer/docker-compose.yaml"
+
+- name: Portainer image pull
+  docker_image:
+    name: "{{ PORTAINER_IMAGE }}:{{ PORTAINER_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/portainer"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/portainer"
+    build: false
+    files:
+      - docker-compose.yaml
+...

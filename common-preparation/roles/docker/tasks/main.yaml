@@ -6,4 +6,8 @@
 - name: Config Docker
   import_tasks: configure.yaml
   tags: configure_docker
+
+- name: Setup Portainer
+  import_tasks: Portainer.yaml
+  tags: setup_portainer
 ...
