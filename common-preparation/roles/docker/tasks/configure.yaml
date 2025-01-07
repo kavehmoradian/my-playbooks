@@ -14,4 +14,9 @@
     state: present
     driver_options:
       com.docker.network.bridge.name: external_net
+
+- name: Restart docker
+  service:
+    name: docker
+    state: restarted
 ...
