@@ -4,6 +4,6 @@ DIR_NAME: /deploy
 PORTAINER_IMAGE: portainer/portainer-ce
 PORTAINER_VERSION: 2.21.5
 
-DOMAIN_NAME: iqliniq.com
-PORTAINER_SUB_DOMAIN: portainer-stg-01
+DOMAIN_NAME: domain.tld
+PORTAINER_SUB_DOMAIN: portainer
 ...
