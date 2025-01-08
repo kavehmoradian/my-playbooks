@@ -1,0 +1,10 @@
+---
+DIR_NAME: /deploy/monitoring
+
+# Domain postfix
+DOMAIN_ADDRESS: domain.tld
+
+# Common vars for all containers
+HOSTNAME: observability
+RESTART_POLICY: always
+...

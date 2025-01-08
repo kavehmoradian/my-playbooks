@@ -1,0 +1,8 @@
+---
+- hosts: servers
+  become: true
+  gather_facts: true
+  name: Setup monitoring server
+  roles:
+    - { role: grafana, become: True, tags: grafana }
+...

@@ -1,0 +1,33 @@
+---
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/grafana"
+    - "{{ DIR_NAME }}/grafana/grafana"
+
+- name: Copy Docker Compose file
+  template:
+    src: grafana-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/grafana/docker-compose.yaml"
+
+- name: Grafana image pull
+  docker_image:
+    name: "{{ GRAFANA_IMAGE }}:{{ GRAFANA_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/grafana"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/grafana"
+    build: false
+    files:
+      - docker-compose.yaml
+...

@@ -1,0 +1,9 @@
+---
+- name: Setup grafana
+  import_tasks: setup.yaml
+  tags: setup_grafana
+
+- name: Grafana provisioning
+  import_tasks: provisioning.yaml
+  tags: grafana_provisioning
+...

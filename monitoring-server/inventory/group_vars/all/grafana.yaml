@@ -1,0 +1,12 @@
+# Grafana Image
+GRAFANA_IMAGE: grafana/grafana
+GRAFANA_VERSION: 11.4.0
+
+# Grafana Auth
+GRAFANA_USERNAME: xxxxxxxx
+GRAFANA_PASSWORD: xxxxxxxxxxxx
+
+# Grafana Plugins
+GRAFANA_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+
+GRAFANA_CONTAINER_NAME: grafana
