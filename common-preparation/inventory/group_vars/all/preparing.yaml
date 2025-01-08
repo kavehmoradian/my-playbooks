@@ -32,6 +32,7 @@ packages:
 - micro
 - python3-pip
 - lynis
+- tree
 
 # Limit.conf variables
 limit_nproc_hard: 1024

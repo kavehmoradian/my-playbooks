@@ -46,7 +46,11 @@
     state: restored
     path: /etc/iptables/rules.v4
     noflush: true
-  notify: Restart iptables
+
+- name: Restart iptables
+  systemd:
+    name: iptables
+    state: restarted
 
 - name: Make fail2ban configuration file.
   template:
