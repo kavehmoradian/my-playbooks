@@ -1,0 +1,9 @@
+---
+- name: Setup prometheus
+  import_tasks: setup.yaml
+  tags: setup_prometheus
+
+- name: Prometheus provisioning
+  import_tasks: provisioning.yaml
+  tags: prometheus_provisioning
+...

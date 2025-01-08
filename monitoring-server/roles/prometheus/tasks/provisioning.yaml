@@ -1,0 +1,26 @@
+- name: Delete old prometheus files
+  ansible.builtin.file:
+    state: absent
+    path: "{{ DIR_NAME }}/prometheus/prometheus"
+
+- name: Creates prometheus directory
+  file:
+    path: "{{ DIR_NAME }}/prometheus/prometheus"
+    state: directory
+
+- name: Copy config file
+  template:
+    src: prometheus.yaml.j2
+    dest: "{{ DIR_NAME }}/prometheus/prometheus/prometheus.yaml"
+
+- name: Copy alert files
+  copy:
+    src: alerts
+    dest: "{{ DIR_NAME }}/prometheus/prometheus"
+
+- name: Restart prometheus services
+  community.docker.docker_compose_v2:
+    project_src: "{{ DIR_NAME }}/prometheus"
+    state: restarted
+    files:
+      - docker-compose.yaml

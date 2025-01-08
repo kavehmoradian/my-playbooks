@@ -1,0 +1,46 @@
+---
+- name: Install apache2-utils (for htpasswd)
+  apt:
+    name: apache2-utils
+    state: present
+
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/prometheus"
+    - "{{ DIR_NAME }}/prometheus/prometheus"
+
+- name: Generate basic auth token
+  command: "htpasswd -nbs {{ PROMETHEUS_USERNAME }} {{ PROMETHEUS_PASSWORD }} "
+  register: basic_auth_output
+
+- name: Set basic auth token fact
+  set_fact:
+    basic_auth_token: "{{ basic_auth_output.stdout }}"
+
+- name: Copy Docker Compose file
+  template:
+    src: prometheus-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/prometheus/docker-compose.yaml"
+
+- name: Prometheus image pull
+  docker_image:
+    name: "{{ PROMETHEUS_IMAGE }}:{{ PROMETHEUS_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/prometheus"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/prometheus"
+    build: false
+    files:
+      - docker-compose.yaml
+...

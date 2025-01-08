@@ -1,0 +1,45 @@
+networks:
+  internal_net:
+    external: true
+    name: internal_net
+  external_net:
+    external: true
+    name: external_net
+
+volumes:
+  prometheus_data:
+    name: prometheus_data
+
+services:
+  prometheus:
+    image: "{{ PROMETHEUS_IMAGE }}:{{ PROMETHEUS_VERSION }}"
+    restart: {{ RESTART_POLICY }}
+    container_name: {{ PROMETHEUS_CONTAINER_NAME }}
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus:/etc/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time={{ TSDB_RETENTION_TIME }}
+      - --storage.tsdb.retention.size={{ TSDB_RETENTION_SIZE }}
+      - --web.enable-lifecycle
+    networks:
+      - internal_net
+      - external_net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=external_net
+      - traefik.http.middlewares.prom-auth.basicauth.users={{basic_auth_token}}
+      - traefik.http.routers.prometheus.entrypoints=http
+      - traefik.http.routers.prometheus.rule=Host(`{{ PROMSUB }}.{{ DOMAIN_ADDRESS }}`)
+      - traefik.http.routers.prometheus.middlewares=https-redirect
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.routers.prometheus-secure.entrypoints=https
+      - traefik.http.routers.prometheus-secure.rule=Host(`{{ PROMSUB }}.{{ DOMAIN_ADDRESS }}`)
+      - traefik.http.routers.prometheus-secure.tls=true
+      - traefik.http.routers.prometheus-secure.tls.options=default
+      - traefik.http.routers.prometheus-secure.tls.certresolver=mycert
+      - traefik.http.routers.prometheus-secure.middlewares=prom-auth
+      - traefik.http.routers.prometheus-secure.service=prometheus
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
