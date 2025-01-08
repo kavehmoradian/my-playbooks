@@ -43,7 +43,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=external_net"
-      - "traefik.http.middlewares.web-auth.basicauth.users={{basic_auth_token}}"
       - "traefik.http.routers.traefik.middlewares=https-redirect"
       - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.traefik.entrypoints=http"
@@ -52,7 +51,8 @@ services:
       - "traefik.http.routers.traefik-secure.rule=Host(`{{ TRAEFIK_SUB_DOMAIN }}.{{ DOMAIN_NAME }}`)"
       - "traefik.http.routers.traefik-secure.tls=true"
       - "traefik.http.routers.traefik-secure.tls.options=default"
-      - "traefik.http.routers.traefik-secure.middlewares=web-auth,security@file,hsts@file"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users={{basic_auth_token}}"
+      - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
       - "traefik.http.routers.traefik-secure.tls.certresolver=mycert"
       - "traefik.http.routers.traefik-secure.service=traefik"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
