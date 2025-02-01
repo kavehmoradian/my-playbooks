@@ -1,0 +1,53 @@
+networks:
+  internal_net:
+    external: true
+    name: internal_net
+  external_net:
+    external: true
+    name: external_net
+
+volumes:
+  loki_data:
+    name: loki_data
+
+services:
+  loki:
+    image: "{{ LOKI_IMAGE }}:{{ LOKI_VERSION }}"
+    command: -config.file=/etc/loki/loki.yml
+    restart: {{ RESTART_POLICY }}
+    container_name: {{ LOKI_CONTAINER_NAME }}
+    user: root
+    volumes:
+      - loki_data:/tmp/loki
+      - ./loki:/etc/loki/
+    networks:
+      - internal_net
+      - external_net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=external_net
+      - traefik.http.middlewares.loki-auth.basicauth.users={{basic_auth_token}}
+      - traefik.http.routers.loki.entrypoints=http
+      - traefik.http.routers.loki.rule=Host(`{{ LOGSUB }}.{{ DOMAIN_ADDRESS }}`)
+      - traefik.http.routers.loki.middlewares=https-redirect
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.routers.loki-secure.entrypoints=https
+      - traefik.http.routers.loki-secure.rule=Host(`{{ LOGSUB }}.{{ DOMAIN_ADDRESS }}`)
+      - traefik.http.routers.loki-secure.tls=true
+      - traefik.http.routers.loki-secure.tls.options=default
+      - traefik.http.routers.loki-secure.middlewares=loki-auth
+      - traefik.http.routers.loki-secure.tls.certresolver=mycert
+      - traefik.http.services.loki.loadbalancer.server.port=3100
+
+  promtail:
+    image: "{{ PROMTAIL_IMAGE }}:{{ PROMTAIL_VERSION }}"
+    restart: {{ RESTART_POLICY }}
+    container_name: {{ PROMTAIL_CONTAINER_NAME }}
+    volumes:
+      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail:/etc/promtail/
+    command: -config.file=/etc/promtail/promtail.yml
+    networks:
+      - internal_net

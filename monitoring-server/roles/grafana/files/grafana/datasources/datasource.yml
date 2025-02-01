@@ -7,3 +7,17 @@ datasources:
   url: http://prometheus:9090
   editable: true
   isDefault: true
+  
+- name: Loki
+  type: loki
+  access: proxy
+  url: http://loki:3100
+  editable: true
+  isDefault: false
+  jsonData:
+    timeInterval: 15s
+    httpHeaderName1: Connection
+    httpHeaderName2: Upgrade
+  secureJsonData:
+    httpHeaderValue1: Upgrade
+    httpHeaderValue2: websocket

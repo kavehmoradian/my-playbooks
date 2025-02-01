@@ -1,0 +1,62 @@
+---
+- name: Install apache2-utils (for htpasswd)
+  apt:
+    name: apache2-utils
+    state: present
+
+- name: Creates directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ DIR_NAME }}"
+    - "{{ DIR_NAME }}/loki"
+    - "{{ DIR_NAME }}/loki/loki"
+    - "{{ DIR_NAME }}/loki/promtail"
+
+- name: Generate basic auth token
+  command: "htpasswd -nbs {{ LOKI_USERNAME }} {{ LOKI_PASSWORD }} "
+  register: basic_auth_output
+
+- name: Set basic auth token fact
+  set_fact:
+    basic_auth_token: "{{ basic_auth_output.stdout }}"
+
+- name: Copy Docker Compose file
+  template:
+    src: loki-compose.yaml.j2
+    dest: "{{ DIR_NAME }}/loki/docker-compose.yaml"
+
+- name: Copy Loki Config file
+  template:
+    src: loki.yaml.j2
+    dest: "{{ DIR_NAME }}/loki/loki/loki.yml"
+
+- name: Copy promtail config
+  copy:
+    src: promtail.yml
+    dest: "{{ DIR_NAME }}/loki/promtail"
+
+- name: Loki image pull
+  docker_image:
+    name: "{{ LOKI_IMAGE }}:{{ LOKI_VERSION }}"
+    source: pull
+
+- name: Promtail image pull
+  docker_image:
+    name: "{{ PROMTAIL_IMAGE }}:{{ PROMTAIL_VERSION }}"
+    source: pull
+
+- name: Bring down docker-compose services if running
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/loki"
+    state: absent
+  ignore_errors: true
+
+- name: Run docker-compose up
+  docker_compose:
+    project_src: "{{ DIR_NAME }}/loki"
+    build: false
+    files:
+      - docker-compose.yaml
+...

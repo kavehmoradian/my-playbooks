@@ -1,0 +1,17 @@
+# Loki Image
+LOKI_IMAGE: grafana/loki
+LOKI_VERSION: k171-b5eaae1
+
+LOKI_CONTAINER_NAME: loki
+LOGSUB: loki
+
+
+# Loki Basic Auth
+LOKI_USERNAME: xxxxxxxx
+LOKI_PASSWORD: xxxxxxxxxxxx
+
+
+#Promtail Configure
+PROMTAIL_IMAGE: grafana/promtail
+PROMTAIL_VERSION: main-319bb0f
+PROMTAIL_CONTAINER_NAME: promtail

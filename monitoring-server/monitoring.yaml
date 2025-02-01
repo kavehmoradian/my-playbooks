@@ -6,4 +6,5 @@
   roles:
     - { role: grafana, become: True, tags: grafana }
     - { role: prometheus, become: True, tags: prometheus }
+    - { role: loki, become: True, tags: loki }
 ...
